@@ -191,6 +191,8 @@ Superduperdupervoter 564475831653629968
         ]
 
 
+        finished_turn = 567343239913406495
+
         user = ctx.message.mentions[0]
 
         role_ids = [i.id for i in user.roles]
@@ -200,6 +202,7 @@ Superduperdupervoter 564475831653629968
         for n,rid in enumerate(supervoter_hierarchy):
             if rid not in role_ids:
                 await user.add_roles(discord.utils.get(ctx.guild.roles, id=rid))
+                await user.add_roles(discord.utils.get(ctx.guild.roles, id=finished_turn))
                 level = n
                 break
 
