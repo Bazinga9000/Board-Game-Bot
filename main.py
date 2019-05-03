@@ -161,6 +161,24 @@ async def reload_libs(ctx):
     await ctx.send(str(loaded) + "/" + str(excount) + " Extensions Reloaded.")
 
 
+#Stolen from HTBote
+@bot.command(brief="Update the bot from git")
+@commands.check(owner)
+async def update(ctx):
+    process = await asyncio.create_subprocess_exec('git', 'pull', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = await process.communicate()
+
+
+    stdout = stdout.decode().splitlines()
+    stdout = '\n'.join('+ ' + i for i in stdout)
+    stderr = stderr.decode().splitlines()
+    stderr = '\n'.join('- ' + i for i in stderr)
+
+    await ctx.author.send('`Git` response: ```diff\n{}\n{}```'.format(stdout, stderr))
+
+    await reload_libs(ctx)
+
+
 @bot.command(brief="Reload all the commands")
 @commands.check(owner)
 async def reload(ctx):
