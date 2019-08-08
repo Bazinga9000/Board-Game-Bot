@@ -4,7 +4,7 @@ from discord.ext import commands
 
 owner = lambda ctx: ctx.author.id in [137001076284063744,223201675186274304,473975633014161419]
 
-class Admin():
+class Admin(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
