@@ -212,25 +212,26 @@ Superduperdupervoter 564475831653629968
 
         finished_turn = 567343239913406495
 
-        user = ctx.message.mentions[0]
 
-        role_ids = [i.id for i in user.roles]
+        for user in ctx.message.mentions:
 
-
-        level = len(supervoter_hierarchy)
-        for n,rid in enumerate(supervoter_hierarchy):
-            if rid not in role_ids:
-                await user.add_roles(discord.utils.get(ctx.guild.roles, id=rid))
-                await user.add_roles(discord.utils.get(ctx.guild.roles, id=finished_turn))
-                level = n
-                break
+            role_ids = [i.id for i in user.roles]
 
 
-        if level == len(supervoter_hierarchy):
-            return await ctx.send("<@137001076284063744> someone supervoted too many times you need to add a new role to the hierarchy")
+            level = len(supervoter_hierarchy)
+            for n,rid in enumerate(supervoter_hierarchy):
+                if rid not in role_ids:
+                    await user.add_roles(discord.utils.get(ctx.guild.roles, id=rid))
+                    await user.add_roles(discord.utils.get(ctx.guild.roles, id=finished_turn))
+                    level = n
+                    break
 
-        else:
-            return await ctx.send("{} has been increased in the Supervoter Hierarchy (Now {})".format(user.name, level+1))
+
+            if level == len(supervoter_hierarchy):
+                return await ctx.send("<@137001076284063744> someone supervoted too many times you need to add a new role to the hierarchy")
+
+            else:
+                return await ctx.send("{} has been increased in the Supervoter Hierarchy (Now {})".format(user.name, level+1))
 
 
 
