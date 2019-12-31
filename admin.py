@@ -228,10 +228,10 @@ Superduperdupervoter 564475831653629968
 
 
             if level == len(supervoter_hierarchy):
-                return await ctx.send("<@137001076284063744> someone supervoted too many times you need to add a new role to the hierarchy")
+                await ctx.send("<@137001076284063744> someone supervoted too many times you need to add a new role to the hierarchy")
 
             else:
-                return await ctx.send("{} has been increased in the Supervoter Hierarchy (Now {})".format(user.name, level+1))
+                await ctx.send("{} has been increased in the Supervoter Hierarchy (Now {})".format(user.name, level+1))
 
 
 
