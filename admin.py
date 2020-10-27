@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-
+import sys, io, json
 
 owner = lambda ctx: ctx.author.id in [137001076284063744,223201675186274304,473975633014161419]
 
@@ -79,7 +79,7 @@ class Admin(commands.Cog):
             if args[0].lower() in cats:
                 cog_name = cats[args[0].lower()]
                 d = 'Commands in category **`{}`**:\n'.format(cog_name)
-                cmds = self.bot.get_cog_commands(cog_name)
+                cmds = self.bot.get_cog(cog_name).get_commands()
                 for cmd in sorted(list(cmds), key=lambda x: x.name):
                     d += '\n  `{}{}`'.format(ctx.prefix, cmd.name)
 
@@ -120,6 +120,67 @@ class Admin(commands.Cog):
 
         # d += '\n*Made by Bottersnike#3605 and hanss314#0128*'
         return await ctx.send(d)
+
+    @commands.check(owner)
+    @commands.command(name="eval", brief="evaluate some code")
+    async def _eval(self, ctx, *, code: str):
+
+        try:
+            ans = eval(code)
+            error = 0
+        except Exception as err:
+            error = 1
+            ans = str(err)
+        finally:
+
+            embed = discord.Embed(color=[0x00ff00, 0xff0000][error])
+            embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+            embed.add_field(name="Code", value=("```Python\n" + code + "\n```")
+                            , inline=False)
+            embed.add_field(name=["Result", "Error"][error], value=("```\n" + str(ans) + "\n```")
+                            , inline=True)
+            await ctx.send(embed=embed)
+
+    @commands.check(owner)
+    @commands.command(name="exec", brief="execute some code")
+    async def _exec(self, ctx, *, code: str):
+
+        text = code
+
+        if code.startswith("```Python"):
+            text = text.replace("```Python", "```")
+
+        text = text[:-3]
+
+        lines = text.split("```")[1].splitlines()
+        runningcode = "\n".join(lines)[1:]
+
+        # setup the environment
+        old_stdout = sys.stdout
+        sys.stdout = io.TextIOWrapper(io.BytesIO(), sys.stdout.encoding)
+
+        # do something that writes to stdout or stdout.buffer
+
+        try:
+            exec(runningcode)
+            sys.stdout.seek(0)  # jump to the start
+            ans = sys.stdout.read()  # read output
+            error = 0
+        except Exception as e:
+            ans = str(e)
+            error = 1
+        finally:
+            # restore stdout
+            sys.stdout.close()
+            sys.stdout = old_stdout
+
+            embed = discord.Embed(color=[0x00ff00, 0xff0000][error])
+            embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
+            embed.add_field(name="Code", value=("```Python\n" + runningcode + "\n```")
+                            , inline=False)
+            embed.add_field(name=["Result", "Error"][error], value=("```\n" + str(ans) + "\n```")
+                            , inline=True)
+            await ctx.send(embed=embed)
 
 
     @commands.check(owner)
@@ -167,71 +228,240 @@ class Admin(commands.Cog):
 
         await ctx.send("Role taken from {} people.".format(given))
 
-
-    '''
-    Supervoter 564475422033838080
-Superdupervoter 564475556725260308
-Supervoter V 569333309662822410
-Supervoter IV 569333211004665859
-Superduperdupervoter 564475831653629968
-'''
-
+    @commands.check(owner)
+    @commands.command(brief="Set signup state")
+    async def signup_state(self, ctx, state : bool):
+        self.bot.game.can_signup = state
+        await ctx.send("Signup state changed to {}".format(state))
 
 
     @commands.check(owner)
-    @commands.command(brief="Add the next supervoter role to a person.")
-    async def supervoter(self, ctx, user_mention):
-        supervoter_hierarchy = [
-            564475422033838080,
-            564475556725260308,
-            564475831653629968,
-            569333211004665859,
-            569333309662822410,
-            577274482117574658,
-            577274557552132117,
-            577274768831545358,
-            577274922347266048,
-            577275058242846740,
-            599635009535475722,
-            599635208115060753,
-            599635374930788363,
-            599635541516091402,
-            599635546297467038,
-            632303837184524302,
-            632303839080480786,
-            632303839910821897,
-            632303838073847867,
-            632303835884290091,
-            656237573303173122,
-            656237665674592266,
-            656237668652285965,
-            656237669415911435,
-            656237670447448064
-        ]
+    @commands.command(brief="Advance to the next phase")
+    async def advance_phase(self, ctx):
+        self.bot.game.phase = (self.bot.game.phase + 1) % 4
+        if self.bot.game.phase == 0:
+            self.bot.game.new_round()
+        elif self.bot.game.phase == 1:
+            self.bot.game.start_voting()
+        elif self.bot.game.phase == 2:
+            self.bot.game.start_results()
+
+        await ctx.send("Phase changed to {}".format(["responding","voting","results","interphase"][self.bot.game.phase]))
 
 
-        finished_turn = 567343239913406495
+    @commands.check(owner)
+    @commands.command(brief="Eliminate all ids given")
+    async def kill(self, ctx, *ids):
+        body_count = 0
+        ids = [int(i) for i in ids]
+        for i in ids:
+            for p in self.bot.game.players:
+                if p.id == i:
+                    p.alive = False
+                    body_count += 1
+        await ctx.send("Killed {}.".format(body_count))
 
 
-        for user in ctx.message.mentions:
+    @commands.check(owner)
+    @commands.command(aliases=["screensize"],brief="Set screen size")
+    async def setscreensize(self, ctx, size : int):
+        self.bot.game.screen_size = size
+        await ctx.send("Screen size set to {}".format(size))
 
-            role_ids = [i.id for i in user.roles]
+    @commands.check(owner)
+    @commands.command(brief="Reply to a DM")
+    async def reply(self, ctx, mention, *, content):
+        user = ctx.message.mentions[0]
+        await user.send(content)
+
+    @commands.check(owner)
+    @commands.command(brief="Get the json file containing the most recently tabulated results.")
+    async def extract_results(self, ctx):
+        channel = ctx.message.channel
+        await ctx.send(file=discord.File(open("results/results.json","rb")))
+
+    @commands.check(owner)
+    @commands.command(aliases=["current_results"],brief="Tabulate the current results if voting were to end now.")
+    async def tabulate_results(self, ctx):
+        x = self.bot.game.export_results()
+        message = '```\n'
+        for response in x:
+            message += "{} #{} - {}\n".format(response["player"],response["index"],response["response"])
+            message += "μ = {}, σ = {}, s = {}\n".format(response["mean"],response["stdev"],response["skew"])
+            message += "metas = {}\n".format(response["metas"])
+            message += "Score - {} | Movement - {}\n\n".format(response["score"],response["movement"])
+
+        message += "```"
+        await ctx.send(message)
+
+    @commands.check(owner)
+    @commands.command(aliases=["boost_add"],brief="Add a boost to a player")
+    async def add_boost(self, ctx, player_id : int, boost : float, duration : int, boost_id : str):
+        player = self.bot.game.get_player_from_id(player_id)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+
+        player.score_boosts.append([boost,duration,boost_id])
+        await ctx.send("Given `{}` of {} to {} for {} rounds".format(boost_id,boost,self.bot.get_name(player_id),duration))
+
+    @commands.check(owner)
+    @commands.command(aliases=["boost_remove"],brief="Remove a boost from a player")
+    async def remove_boost(self, ctx, player_id : int, boost_id : str):
+        player = self.bot.game.get_player_from_id(player_id)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+
+        old_length = len(player.score_boosts)
+        player.score_boosts = [i for i in player.score_boosts if i[2] != boost_id]
+        new_length = len(player.score_boosts)
+
+        await ctx.send("Removed all boosts with id `{}` ({} item(s) removed)".format(boost_id,old_length-new_length))
+
+    @commands.check(owner)
+    @commands.command(brief="Give a player more or less responses [lasts indefinitely!]")
+    async def update_response_count(self, ctx, player_id : int, amount : int):
+        player = self.bot.game.get_player_from_id(player_id)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+
+        player.update_max_responses(amount)
+        return await ctx.send("Set {}'s max responses to {}.".format(self.bot.get_name(player_id),amount))
+
+    @commands.check(owner)
+    @commands.command(aliases=["item_give"],brief="Give a player an item")
+    async def give_item(self, ctx, player_id : int, item_id : str):
+        player = self.bot.game.get_player_from_id(player_id)
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+        try:
+            item = self.bot.game.new_player_item(item_id)
+        except KeyError:
+            return await ctx.send("That is not an item.")
+
+        player.inventory.append(item)
+        self.bot.game.dump_game()
+
+        return await ctx.send("Given item {} to {}".format(item_id, self.bot.get_name(player_id)))
 
 
-            level = len(supervoter_hierarchy)
-            for n,rid in enumerate(supervoter_hierarchy):
-                if rid not in role_ids:
-                    await user.add_roles(discord.utils.get(ctx.guild.roles, id=rid))
-                    await user.add_roles(discord.utils.get(ctx.guild.roles, id=finished_turn))
-                    level = n
-                    break
+    @commands.check(owner)
+    @commands.command(aliases=["item_remove"],brief="Give a player an item")
+    async def remove_item(self, ctx, player_id : int, item_uuid : int):
+        player = self.bot.game.get_player_from_id(player_id)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
 
 
-            if level == len(supervoter_hierarchy):
-                await ctx.send("<@137001076284063744> someone supervoted too many times you need to add a new role to the hierarchy")
 
-            else:
-                await ctx.send("{} has been increased in the Supervoter Hierarchy (Now {})".format(user.name, level+1))
+        removed_item = player.remove_item_with_uuid(item_uuid)
+        self.bot.game.dump_game()
+
+        if removed_item is None:
+            return await ctx.send("That player did not have that item.")
+        else:
+            return await ctx.send("Removed item.")
+
+    @commands.check(owner)
+    @commands.command(aliases=["trade"],brief="Move an item between two players")
+    async def move_item(self, ctx, player_one_id : int, player_two_id : int, item_uuid : int):
+        player_one = self.bot.game.get_player_from_id(player_one_id)
+
+        if player_one is None:
+            return await ctx.send("The given player one is not a contestant.")
+
+        if not player_one.alive:
+            return await ctx.send("That player is dead.")
+
+        player_two = self.bot.game.get_player_from_id(player_two_id)
+
+        if player_two is None:
+            return await ctx.send("The given player two is not a contestant.")
+
+        if not player_two.alive:
+            return await ctx.send("That player is dead.")
+
+        p1name = self.bot.get_name(player_one_id)
+        p2name = self.bot.get_name(player_two_id)
+
+        removed_item = player_one.remove_item_with_uuid(item_uuid)
+
+        if removed_item is None:
+            return await ctx.send("{} did not have that item.".format(p1name))
+
+        player_two.inventory.append(removed_item)
+        self.bot.game.dump_game()
+
+        return await ctx.send("Moved item {} from {} to {}".format(item_uuid,p1name,p2name))
+
+    @commands.command(aliases=["get_inventory","pinventory"],brief="View any player's inventory (includes 'forbidden knowledge', such as item UUIDs).")
+    async def get_player_inventory(self, ctx, player):
+        try:
+            pid = ctx.message.mentions[0].id
+        except:
+            try:
+                pid = int(player)
+            except:
+                return await ctx.send("That player is invalid.")
+
+        player = self.bot.game.get_player_from_id(pid)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+
+        message = "{} currently has the following item(s):\n".format(self.bot.get_name(pid))
+        for i in player.inventory:
+            message += self.bot.game.item_string(i,True) + "\n"
+        if len(player.inventory) == 0:
+            message += "[No items.]"
+        return await ctx.send(message)
+
+    @commands.command(brief="Modify a field of an item.")
+    async def modify_item_field(self, ctx, player_id : int, item_uuid : int, field_id : str, new_value : int):
+        player = self.bot.game.get_player_from_id(player_id)
+
+        if player is None:
+            return await ctx.send("That player is not a contestant.")
+
+        if not player.alive:
+            return await ctx.send("That player is dead.")
+
+        item = player.get_item(item_uuid)
+        if item is None:
+            return await ctx.send("That player did not have that item.")
+        else:
+            for f in item["fields"]:
+                if f["id"] == field_id:
+                    f["value"] = new_value
+                    return await ctx.send("Set {} to {}".format(field_id,new_value))
+            return await ctx.send("That item did not have that field.")
+
+    @commands.check(owner)
+    @commands.command(brief="Update the item registry.")
+    async def update_item_registry(self,ctx):
+        self.bot.game.update_item_registry()
+        await ctx.send("Updated.")
 
 
 

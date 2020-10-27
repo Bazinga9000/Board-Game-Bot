@@ -1,0 +1,418 @@
+[
+  {
+    "id" : "drp",
+    "name" : "Response Token",
+    "register" : 50,
+    "weight" : 5,
+    "types" : ["response","consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["v","r"],
+    "description" : "Submit an extra normal response. The normal response you score highest with determines your final score.",
+    "fields" : []
+  },
+
+  {
+    "id" : "flywheel",
+    "name" : "Flywheel",
+    "register" : 680,
+    "weight" : 50,
+    "types" : ["movement modifier","persistent"],
+    "use_phases" : ["i"],
+    "activation_phases" : ["i"],
+    "description" : "Deposit Movement into the Flywheel from your total Movement this round. The Movement added to the Flywheel is (total Movement this round - Movement you want to use). In a later Interphase, you can withdraw Movement from the Flywheel and add it to your total Movement. The Flywheel can hold a maximum of 3 Movement.",
+    "fields" : [
+      {"id" : "movement", "name" : "Deposited Movement", "default" : 0}
+    ]
+  },
+
+  {
+    "id" : "lockpick",
+    "name" : "Lockpick",
+    "register" : 4,
+    "weight" : 20,
+    "types" : ["consumable","passive"],
+    "use_phases" : [""],
+    "activation_phases" : ["i"],
+    "description" : "Allows the user to pass through one Locked Door without using a Key of the corresponding color.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "remote",
+    "name" : "Remote",
+    "register" : 30,
+    "weight" : 25,
+    "types" : ["board modifier", "loaded", "persistent"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["s"],
+    "description" : "Consume 1 Ammunition. Specify a Button space. Its effect is triggered.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "scavenge",
+    "name" : "Scavenge",
+    "register" : 40,
+    "weight" : 15,
+    "types" : ["consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["s"],
+    "description" : "Obtain 1 item that was consumed/deleted last round. All players attempting to get the same item get nothing.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "bracelet",
+    "name" : "Friendship Bracelet",
+    "register" : 60,
+    "weight" : 15,
+    "types" : ["consumable", "% modifier"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Get +(50/number of alive players)% in Results for every player on your space. Cannot be used while on a Board Start/Finish space or when fewer than 10 players are alive.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "megaphone",
+    "name" : "Megaphone",
+    "register" : 150,
+    "weight" : 15,
+    "types" : ["consumable"],
+    "use_phases" : ["v"],
+    "activation_phases" : ["r"],
+    "description" : "Your votes this round have 1.3x weight.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "crystal_ball",
+    "name" : "Crystal Ball",
+    "register" : 210,
+    "weight" : 15,
+    "types" : ["consumable", "% modifier"],
+    "use_phases" : ["v"],
+    "activation_phases" : ["r"],
+    "description" : "Select any number of responses. Send a prediction of what you think the exact order of these responses will be in raw results, using the megascreen keyword. This is separate from your actual vote and does not count as a vote. If your prediction matches exactly, get +((# of responses you selected)^1.2)%. Otherwise, no bonus.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "potion",
+    "name" : "Aurorian Potion",
+    "register" : 220,
+    "weight" : 20,
+    "types" : ["consumable", "% modifier"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Choose a percentage amount. If your raw score is at least 8x that number, obtain that amount. Otherwise, no bonus.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "fee",
+    "name" : "Usage Fee",
+    "register" : 230,
+    "weight" : 15,
+    "types" : ["consumable", "% modifier", "attack"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Select a player. They get -3% and you get +1% for each item they used this turn.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "bomb",
+    "name" : "Bomb",
+    "register" : 240,
+    "weight" : 15,
+    "types" : ["consumable", "% modifier", "attack"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Select a space within 2 spaces of you. Everyone on that space loses 1% in the next Results. You gain half the total amount of % lost from this. Target space cannot be a Board Start/Finish space.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "bowtie",
+    "name" : "Bowtie",
+    "register" : 250,
+    "weight" : 25,
+    "types" : ["passive", "% modifier", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["r"],
+    "description" : "Get +2% every Results phase.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "mask",
+    "name" : "Shapeshifting Mask",
+    "register" : 260,
+    "weight" : 15,
+    "types" : ["consumable", "% modifier"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Select a player. Your score is modified by half of the amount their score was modified by, not counting modifications caused by another Shapeshifting Mask.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "pistol",
+    "name" : "Pistol",
+    "register" : 270,
+    "weight" : 40,
+    "types" : ["attack", "% modifier", "loaded", "peristent"],
+    "use_phases" : ["s", "v"],
+    "activation_phases" : ["r"],
+    "description" : "Consume 1 Ammunition. Your target gets -6%.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "backpack",
+    "name" : "Backpack",
+    "register" : 280,
+    "weight" : -20,
+    "types" : ["passive", "weight", "peristent"],
+    "use_phases" : [""],
+    "activation_phases" : ["r"],
+    "description" : "This item has -20 weight.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "shaming",
+    "name" : "Fat Shaming",
+    "register" : 290,
+    "weight" : 10,
+    "types" : ["consumable", "attack", "% modifier"],
+    "use_phases" : ["s", "v"],
+    "activation_phases" : ["r"],
+    "description" : "All Weight penalties (not Weights themselves) are doubled this round, for everyone except users of this item. Stacks.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "bac",
+    "name" : "Ball and Chain",
+    "register" : 370,
+    "weight" : 25,
+    "types" : ["consumable", "attack", "% modifier"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Select a player. That player's score this round is ((2*their score this round+their score last round)/3)%.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "siphon",
+    "name" : "Siphon",
+    "register" : 380,
+    "weight" : 20,
+    "types" : ["persistent", "attack", "% modifier"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["r"],
+    "description" : "Each round, select a target. They get -(their score modulo 5%)% in results and you obtain that amount.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "cascade",
+    "name" : "Cascade",
+    "register" : 440,
+    "weight" : 25,
+    "types" : ["consumable", "attack"],
+    "use_phases" : ["s", "v"],
+    "activation_phases" : ["r"],
+    "description" : "The prize zone this round extends down to 1 below your rank. If mutiple people use this item, the prize zone extends to the lowest one. The item is always consumed the round it is used.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "dagger",
+    "name" : "Dagger",
+    "register" : 460,
+    "weight" : 40,
+    "types" : ["attack", "theft", "passive", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["r"],
+    "description" : "If you prize this round, you receive an extra prize instead of the person at the bottom of the prize zone. This counts as an attack.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "cuck",
+    "name" : "Cuck Condolence",
+    "register" : 470,
+    "weight" : 30,
+    "types" : ["passive", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["r"],
+    "description" : "If you place within 3 ranks below someone who already earned a prize this round, you also prize.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "emera",
+    "name" : "Meta Emera",
+    "register" : 520,
+    "weight" : 20,
+    "types" : ["passive", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["i"],
+    "description" : "If you prize this round, your choice of items also includes all items available for prizers last round.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "boots",
+    "name" : "Comfy Boots",
+    "register" : 550,
+    "weight" : 15,
+    "types" : ["movement modifier", "consumable"],
+    "use_phases" : ["i"],
+    "activation_phases" : ["i"],
+    "description" : "Your Movement is increased by 2 in the current interphase.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "saddle",
+    "name" : "Saddle",
+    "register" : 650,
+    "weight" : 20,
+    "types" : ["movement modifier", "consumable"],
+    "use_phases" : ["i"],
+    "activation_phases" : ["i"],
+    "description" : "Your response must score above or within 30% of your target's response to play this item. Your own Movement this round is ignored. Select a player currently on your space. In this Interphase, you will move along the same path as them, regardless of whether you’ve met the requirements to pass Locked Doors or other objects.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "gloves",
+    "name" : "Pickpocket's Gloves",
+    "register" : 670,
+    "weight" : 30,
+    "types" : ["mattack", "consumable", "theft"],
+    "use_phases" : ["i"],
+    "activation_phases" : ["i"],
+    "description" : "Select a target. You steal an item of your choice from someone on your space who placed below you in this round's results. If that item is no longer in their inventory or multple players attempt to steal the same item, the theft fails and this item is still consumed. Single use.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "mirror",
+    "name" : "Mirror",
+    "register" : 705,
+    "weight" : 20,
+    "types" : ["defense", "consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["s", "v", "r", "i"],
+    "description" : "Attack items (up to 5) used during this entire round affect the user instead of you. Single use. Lower registers count as attacking first.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "shield",
+    "name" : "Shield",
+    "register" : 710,
+    "weight" : 15,
+    "types" : ["defense", "consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["s", "v", "r", "i"],
+    "description" : "Attack items used during this entire round don't affect you. Single use. The use of this item is revealed only after Interphase results.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "insurance",
+    "name" : "Insurance",
+    "register" : 720,
+    "weight" : 30,
+    "types" : ["defense", "passive", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["s", "v", "r", "i"],
+    "description" : "You get a copy of an item you lost this round due to use of a Theft item, unless that item was a Theft item or Insurance.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "taser",
+    "name" : "Taser",
+    "register" : 730,
+    "weight" : 40,
+    "types" : ["loaded", "attack", "persistent"],
+    "use_phases" : ["i"],
+    "activation_phases" : ["s", "v", "r", "i"],
+    "description" : "Consume 1 ammunition. Your target can't use any non-Passive items next round.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "detector",
+    "name" : "Metal Detector",
+    "register" : 740,
+    "weight" : 30,
+    "types" : ["passive", "persistent"],
+    "use_phases" : [""],
+    "activation_phases" : ["i"],
+    "description" : "After Interphase, gain 1 Ammunition item for every 2 Ammunition items consumed during this round, rounded down.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "obtain",
+    "name" : "Obtain Token",
+    "register" : 750,
+    "weight" : 25,
+    "types" : ["consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["i"],
+    "description" : "Select a target. After Interphase, you acquire all the Consumable items that they consumed this round, except for any Obtain Tokens.",
+    "fields" : [
+    ]
+  },
+
+  {
+    "id" : "favor",
+    "name" : "Favor",
+    "register" : 790,
+    "weight" : 15,
+    "types" : ["attack", "theft", "consumable"],
+    "use_phases" : ["s"],
+    "activation_phases" : ["s", "r"],
+    "description" : "Select a player who has at least 1 item. Before the end of next Submission phase, they must give you an item of their choice. If they do not, they get -10% in the next Results.",
+    "fields" : [
+    ]
+  }
+]
+

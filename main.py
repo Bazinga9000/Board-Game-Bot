@@ -6,6 +6,10 @@ import sys, traceback
 import subprocess
 import asyncio
 import concurrent
+import random
+import game as g
+import pickle
+import player as p
 
 owner = lambda ctx: ctx.author.id == 137001076284063744
 tracebackt = True
@@ -15,7 +19,7 @@ Handles lots of things for Board Game TWOW
 '''
 
 # this specifies what extensions to load when the bot starts up
-startup_extensions = ["admin"]
+startup_extensions = ["admin","p_commands"]
 
 prefix = "bg!"
 
@@ -40,7 +44,20 @@ async def on_ready():
     print(bcolors.OKBLUE + "ID: " + str(bot.user.id) + bcolors.ENDC)
     print(bcolors.OKBLUE + "Prefix: " + bot.command_prefix + bcolors.ENDC)
 
+@bot.event
+async def on_message(message):
+    if message.guild is None:
+        a = message.author
+        m = message.content
+        av = a.avatar_url
+        if len(m) < 1000:
+            channel = bot.get_channel(694724666904018945)
+            embed = discord.Embed(name="asdfasdfasfd", color=random.randint(0,255**3-1))
+            embed.set_author(name=a.name, icon_url=av)
+            embed.add_field(name="Incoming Transmission", value=m, inline=True)
+            await channel.send(embed=embed)
 
+    await bot.process_commands(message)
 
 def gettraceback(exception):
     if not tracebackt: return
@@ -50,6 +67,12 @@ def gettraceback(exception):
 
 @bot.event
 async def on_command_error(ctx, error):
+    if ctx.guild is None:
+        gname = " a DM"
+    else:
+        gname = ctx.guild.name
+
+
     if isinstance(error, commands.errors.NoPrivateMessage):
         return await ctx.send("Uh oh! You friccin moron! You can't use this command in DMs!")
     if isinstance(error, commands.errors.CheckFailure):
@@ -85,10 +108,6 @@ async def on_command_error(ctx, error):
             elif "FORBIDDEN" in so:
                 await ctx.send("Uh oh! I don't have permissions for this!")
         else:
-            if ctx.guild is None:
-                gname = " a DM"
-            else:
-                gname = ctx.guild.name
             print(bcolors.FAIL + "The command " + ctx.message.content)
             print("(Issued by " + ctx.author.name + " in " + gname + ")")
             print("caused " + str(error)[29:] + bcolors.ENDC)
@@ -179,10 +198,16 @@ async def update(ctx):
     await reload_libs(ctx)
 
 
+import importlib
 @bot.command(brief="Reload all the commands")
 @commands.check(owner)
 async def reload(ctx):
+    bot.game.dump_game()
     await reload_libs(ctx)
+    importlib.reload(g)
+    importlib.reload(p)
+    with open("game.pkl", "rb") as f:
+        bot.game = pickle.load(f)
 
 
 '''
@@ -203,6 +228,16 @@ async def update(ctx):
     await reload_libs(ctx)
 '''
 
+def get_name(self, id):
+    user = self.get_user(id)
+
+    if user:
+        return user.name
+    else:
+        return str(id)
+
+bot.get_name = lambda x: get_name(bot,x)
+
 if __name__ == "__main__":
 
     bot.remove_command('help')
@@ -216,5 +251,11 @@ if __name__ == "__main__":
 
 with open("token.txt") as file:
     token = file.read().replace("\n", "")
+
+try:
+    with open("game.pkl", "rb") as f:
+        bot.game = pickle.load(f)
+except:
+    bot.game = g.Game()
 
 bot.run(token)
