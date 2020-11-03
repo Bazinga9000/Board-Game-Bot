@@ -44,6 +44,7 @@ class PlayerCommands(commands.Cog):
         if word_count > 10: message += "**Your response is more than 10 words long. This is not recommended at all and the voters will almost surely kill you.**\n"
         if word_count < 10: message += "*Your response is fewer than 10 words long. While this is not explicitly forbidden, it is not recommended. Continue at your own risk.*\n"
 
+        message += "To edit your response, use the command `b9!response {}` followed by your edit.\n".format(index)
         message += "Your responding status is:\n"
         for i in range(player.maximum_responses):
             if player.current_responses[i] is not None:
@@ -160,7 +161,7 @@ class PlayerCommands(commands.Cog):
         return await ctx.send(message)
 
     @commands.command(aliases=["item_use"],brief="Use one of your items.")
-    async def use(self, ctx, item_id):
+    async def use(self, ctx, item_id, *, comment):
         player = self.bot.game.get_player_from_id(ctx.author.id)
 
         if player is None:
@@ -199,7 +200,11 @@ class PlayerCommands(commands.Cog):
         channel = self.bot.get_channel(694724666904018945)
         embed = discord.Embed(name="asdfasdfasfd", color=random.randint(0, 255 ** 3 - 1))
         embed.set_author(name=a.name, icon_url=av)
-        embed.add_field(name="Incoming Transmission", value="{} has used {}".format(ctx.author.name, item_data["name"]), inline=True)
+        embed.add_field(name="Incoming Transmission", value="{} has used {} with comment {}".format(ctx.author.name, item_data["name"], comment), inline=True)
+        message = "{} has used {}".format(ctx.author.name, item_data["name"])
+        self.bot.game.all_transactions.append(message)
+        self.bot.game.transactions_to_send.append(message)
+
         return await channel.send(embed=embed)
 
 

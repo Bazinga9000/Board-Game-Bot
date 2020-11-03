@@ -246,7 +246,32 @@ class Admin(commands.Cog):
         elif self.bot.game.phase == 2:
             self.bot.game.start_results()
 
+        channel = self.bot.get_channel(772990099033948160)
+        for transaction in self.bot.game.transactions_to_send:
+            await channel.send(transaction)
+
+        self.bot.game.transactions_to_send = []
+
         await ctx.send("Phase changed to {}".format(["responding","voting","results","interphase"][self.bot.game.phase]))
+
+
+    def get_player_object(self, ctx, given_id, mentions_index=0):
+        try:
+            pid = ctx.message.mentions[mentions_index].id
+        except:
+            try:
+                pid = int(given_id)
+            except:
+                raise ValueError("That player is invalid.")
+
+        p = self.bot.game.get_player_from_id(pid)
+        if p is None:
+            raise ValueError("That player is not a contestant.")
+
+        if not p.alive:
+            raise ValueError("That player is dead.")
+
+        return p
 
 
     @commands.check(owner)
@@ -296,28 +321,22 @@ class Admin(commands.Cog):
 
     @commands.check(owner)
     @commands.command(aliases=["boost_add"],brief="Add a boost to a player")
-    async def add_boost(self, ctx, player_id : int, boost : float, duration : int, boost_id : str):
-        player = self.bot.game.get_player_from_id(player_id)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
+    async def add_boost(self, ctx, player_id : str, boost : float, duration : int, boost_id : str):
+        try:
+            player = self.get_player_object(ctx,player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
         player.score_boosts.append([boost,duration,boost_id])
-        await ctx.send("Given `{}` of {} to {} for {} rounds".format(boost_id,boost,self.bot.get_name(player_id),duration))
+        await ctx.send("Given `{}` of {} to {} for {} rounds".format(boost_id,boost,self.bot.get_name(player.id),duration))
 
     @commands.check(owner)
     @commands.command(aliases=["boost_remove"],brief="Remove a boost from a player")
     async def remove_boost(self, ctx, player_id : int, boost_id : str):
-        player = self.bot.game.get_player_from_id(player_id)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
+        try:
+            player = self.get_player_object(ctx,player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
         old_length = len(player.score_boosts)
         player.score_boosts = [i for i in player.score_boosts if i[2] != boost_id]
@@ -328,47 +347,43 @@ class Admin(commands.Cog):
     @commands.check(owner)
     @commands.command(brief="Give a player more or less responses [lasts indefinitely!]")
     async def update_response_count(self, ctx, player_id : int, amount : int):
-        player = self.bot.game.get_player_from_id(player_id)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
+        try:
+            player = self.get_player_object(ctx,player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
         player.update_max_responses(amount)
-        return await ctx.send("Set {}'s max responses to {}.".format(self.bot.get_name(player_id),amount))
+        return await ctx.send("Set {}'s max responses to {}.".format(self.bot.get_name(player.id),amount))
 
     @commands.check(owner)
     @commands.command(aliases=["item_give"],brief="Give a player an item")
     async def give_item(self, ctx, player_id : int, item_id : str):
-        player = self.bot.game.get_player_from_id(player_id)
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
+        try:
+            player = self.get_player_object(ctx, player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
-        if not player.alive:
-            return await ctx.send("That player is dead.")
         try:
             item = self.bot.game.new_player_item(item_id)
-        except KeyError:
+        except:
             return await ctx.send("That is not an item.")
 
         player.inventory.append(item)
+        message = "Given item {} to {}".format(item_id, self.bot.get_name(player.id))
+        self.bot.game.transactions_to_send.append(message)
+        self.bot.game.all_transactions.append(message)
         self.bot.game.dump_game()
 
-        return await ctx.send("Given item {} to {}".format(item_id, self.bot.get_name(player_id)))
+        return await ctx.send(message)
 
 
     @commands.check(owner)
     @commands.command(aliases=["item_remove"],brief="Give a player an item")
-    async def remove_item(self, ctx, player_id : int, item_uuid : int):
-        player = self.bot.game.get_player_from_id(player_id)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
+    async def remove_item(self, ctx, player_id : str, item_uuid : int):
+        try:
+            player = self.get_player_object(ctx,player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
 
 
@@ -378,29 +393,27 @@ class Admin(commands.Cog):
         if removed_item is None:
             return await ctx.send("That player did not have that item.")
         else:
+            message = "Removed item {} from {}".format(removed_item["name"],self.bot.get_name(player.id))
+            self.bot.game.transactions_to_send.append(message)
+            self.bot.game.all_transactions.append(message)
             return await ctx.send("Removed item.")
 
     @commands.check(owner)
     @commands.command(aliases=["trade"],brief="Move an item between two players")
-    async def move_item(self, ctx, player_one_id : int, player_two_id : int, item_uuid : int):
-        player_one = self.bot.game.get_player_from_id(player_one_id)
+    async def move_item(self, ctx, player_one_id : str, player_two_id : str, item_uuid : int):
+        try:
+            player_one = self.get_player_object(ctx,player_one_id,0)
+        except ValueError as e:
+            return await ctx.send(e)
 
-        if player_one is None:
-            return await ctx.send("The given player one is not a contestant.")
+        try:
+            player_two = self.get_player_object(ctx, player_two_id, 1)
+        except ValueError as e:
+            return await ctx.send(e)
 
-        if not player_one.alive:
-            return await ctx.send("That player is dead.")
 
-        player_two = self.bot.game.get_player_from_id(player_two_id)
-
-        if player_two is None:
-            return await ctx.send("The given player two is not a contestant.")
-
-        if not player_two.alive:
-            return await ctx.send("That player is dead.")
-
-        p1name = self.bot.get_name(player_one_id)
-        p2name = self.bot.get_name(player_two_id)
+        p1name = self.bot.get_name(player_one.id)
+        p2name = self.bot.get_name(player_two.id)
 
         removed_item = player_one.remove_item_with_uuid(item_uuid)
 
@@ -410,42 +423,31 @@ class Admin(commands.Cog):
         player_two.inventory.append(removed_item)
         self.bot.game.dump_game()
 
+        message = "Moved item {} from {} to {}".format(removed_item["name"],p1name,p2name)
+        self.bot.game.transactions_to_send.append(message)
+        self.bot.game.all_transactions.append(message)
         return await ctx.send("Moved item {} from {} to {}".format(item_uuid,p1name,p2name))
 
     @commands.command(aliases=["get_inventory","pinventory"],brief="View any player's inventory (includes 'forbidden knowledge', such as item UUIDs).")
-    async def get_player_inventory(self, ctx, player):
+    async def get_player_inventory(self, ctx, player_id):
         try:
-            pid = ctx.message.mentions[0].id
-        except:
-            try:
-                pid = int(player)
-            except:
-                return await ctx.send("That player is invalid.")
+            player = self.get_player_object(ctx,player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
-        player = self.bot.game.get_player_from_id(pid)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
-
-        message = "{} currently has the following item(s):\n".format(self.bot.get_name(pid))
+        message = "{} currently has the following item(s):\n".format(self.bot.get_name(player.id))
         for i in player.inventory:
-            message += self.bot.game.item_string(i,True) + "\n"
+            message += self.bot.game.item_string(i) + "\n"
         if len(player.inventory) == 0:
             message += "[No items.]"
         return await ctx.send(message)
 
     @commands.command(brief="Modify a field of an item.")
     async def modify_item_field(self, ctx, player_id : int, item_uuid : int, field_id : str, new_value : int):
-        player = self.bot.game.get_player_from_id(player_id)
-
-        if player is None:
-            return await ctx.send("That player is not a contestant.")
-
-        if not player.alive:
-            return await ctx.send("That player is dead.")
+        try:
+            player = self.get_player_object(ctx, player_id)
+        except ValueError as e:
+            return await ctx.send(e)
 
         item = player.get_item(item_uuid)
         if item is None:

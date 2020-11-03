@@ -24,6 +24,9 @@ class Game:
         self.item_registry = []
         self.update_item_registry()
 
+        self.transactions_to_send = []
+        self.all_transactions = []
+
     def new_round(self):
         self.round += 1
         self.phase = 0
@@ -33,7 +36,7 @@ class Game:
         self.dump_game()
 
     def movement(self, score):
-        return score//0.1
+        return (score*100)//10
 
     def export_results(self):
         x = self.tabulate_results()
@@ -170,21 +173,23 @@ class Game:
             s = ""
         else:
             s = "\n".join("{}: **{}**".format(i["name"], i["value"]) for i in item["fields"]) + "\n"
-        if forbidden_knowledge:
-            s += "*UUID: {}*\n".format(item["uuid"])
+
+        s += "*UUID: {}*\n".format(item["uuid"])
         return s
 
-    def item_string(self,item,forbidden_knowledge=False):
+    def item_string(self,item):
         idata = self.get_item_data(item["id"])
+
+        data_list = lambda x: "ø" if idata[x] == [] else ",".join(t.upper() for t in idata[x])
 
         return "**{}**\nWeight: **{}** | Register: **{}**\nUse During **{}**, Activated in **{}**\nType(s): {}"\
         "\n{}\n-------\n{}-------".format(
             idata["name"],
             idata["weight"], idata["register"],
-            ",".join(t.upper() for t in idata["use_phases"]), ",".join(t.upper() for t in idata["activation_phases"]),
+            data_list("use_phases"), data_list("activation_phases"),
             ", ".join(t.title() for t in idata["types"]),
             idata["description"],
-            self.format_fields(item,forbidden_knowledge)
+            self.format_fields(item)
         )
 
 
