@@ -246,11 +246,13 @@ class Admin(commands.Cog):
         elif self.bot.game.phase == 2:
             self.bot.game.start_results()
 
-        channel = self.bot.get_channel(772990099033948160)
-        for transaction in self.bot.game.transactions_to_send:
-            await channel.send(transaction)
 
-        self.bot.game.transactions_to_send = []
+        if self.bot.game.phase != 1:
+            channel = self.bot.get_channel(772990099033948160)
+            for transaction in self.bot.game.transactions_to_send:
+                await channel.send(transaction)
+
+            self.bot.game.transactions_to_send = []
 
         await ctx.send("Phase changed to {}".format(["responding","voting","results","interphase"][self.bot.game.phase]))
 
