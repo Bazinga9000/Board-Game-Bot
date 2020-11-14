@@ -8,7 +8,6 @@ class PlayerCommands(commands.Cog):
 
 
     @commands.command(brief="Sign up for Board Game TWOW!")
-    @commands.dm_only()
     async def signup(self,ctx):
         if not self.bot.game.can_signup:
             return await ctx.send("You cannot sign up at this time.")
