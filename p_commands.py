@@ -8,6 +8,7 @@ class PlayerCommands(commands.Cog):
 
 
     @commands.command(brief="Sign up for Board Game TWOW!")
+    @commands.dm_only()
     async def signup(self,ctx):
         if not self.bot.game.can_signup:
             return await ctx.send("You cannot sign up at this time.")
@@ -20,6 +21,7 @@ class PlayerCommands(commands.Cog):
 
 
     @commands.command(aliases=["response"],brief="Submit a response!")
+    @commands.dm_only()
     async def respond(self, ctx, index : int, *, response):
         player = self.bot.game.get_player_from_id(ctx.author.id)
 
@@ -56,6 +58,7 @@ class PlayerCommands(commands.Cog):
 
 
     @commands.command(brief="Cast your votes!")
+    @commands.dm_only()
     async def vote(self, ctx, user_vote=""):
         if self.bot.game.phase != 1:
             return await ctx.send("You cannot vote at this time.")
@@ -126,6 +129,7 @@ class PlayerCommands(commands.Cog):
             await ctx.send(message)
 
     @commands.command(aliases=["boosts","boost"],brief="Get your current boosts")
+    @commands.dm_only()
     async def get_boosts(self, ctx):
         player = self.bot.game.get_player_from_id(ctx.author.id)
 
@@ -161,6 +165,7 @@ class PlayerCommands(commands.Cog):
         return await ctx.send(message)
 
     @commands.command(aliases=["item_use"],brief="Use one of your items.")
+    @commands.dm_only()
     async def use(self, ctx, item_id, *, comment):
         player = self.bot.game.get_player_from_id(ctx.author.id)
 
