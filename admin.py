@@ -334,7 +334,7 @@ class Admin(commands.Cog):
 
     @commands.check(owner)
     @commands.command(aliases=["boost_remove"],brief="Remove a boost from a player")
-    async def remove_boost(self, ctx, player_id : int, boost_id : str):
+    async def remove_boost(self, ctx, player_id : str, boost_id : str):
         try:
             player = self.get_player_object(ctx,player_id)
         except ValueError as e:
@@ -348,7 +348,7 @@ class Admin(commands.Cog):
 
     @commands.check(owner)
     @commands.command(brief="Give a player more or less responses [lasts indefinitely!]")
-    async def update_response_count(self, ctx, player_id : int, amount : int):
+    async def update_response_count(self, ctx, player_id : str, amount : int):
         try:
             player = self.get_player_object(ctx,player_id)
         except ValueError as e:
@@ -359,7 +359,7 @@ class Admin(commands.Cog):
 
     @commands.check(owner)
     @commands.command(aliases=["item_give"],brief="Give a player an item")
-    async def give_item(self, ctx, player_id : int, item_id : str):
+    async def give_item(self, ctx, player_id : str, item_id : str):
         try:
             player = self.get_player_object(ctx, player_id)
         except ValueError as e:
@@ -445,7 +445,7 @@ class Admin(commands.Cog):
         return await ctx.send(message)
 
     @commands.command(brief="Modify a field of an item.")
-    async def modify_item_field(self, ctx, player_id : int, item_uuid : int, field_id : str, new_value : int):
+    async def modify_item_field(self, ctx, player_id : str, item_uuid : int, field_id : str, new_value : int):
         try:
             player = self.get_player_object(ctx, player_id)
         except ValueError as e:
