@@ -165,7 +165,7 @@ class PlayerCommands(commands.Cog):
 
     @commands.command(aliases=["item_use"],brief="Use one of your items.")
     @commands.dm_only()
-    async def use(self, ctx, item_id, *, comment):
+    async def use(self, ctx, item_id, *, comment="<No Comment>"):
         player = self.bot.game.get_player_from_id(ctx.author.id)
 
         if player is None:
