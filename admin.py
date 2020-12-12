@@ -302,8 +302,9 @@ class Admin(commands.Cog):
         await user.send(content)
 
     @commands.check(owner)
-    @commands.command(brief="Get the json file containing the most recently tabulated results.")
+    @commands.command(aliases=["export_results","export"],brief="Get the json file containing the most recently tabulated results.")
     async def extract_results(self, ctx):
+        x = self.bot.game.export_results()
         channel = ctx.message.channel
         await ctx.send(file=discord.File(open("results/results.json","rb")))
 
@@ -466,6 +467,20 @@ class Admin(commands.Cog):
     async def update_item_registry(self,ctx):
         self.bot.game.update_item_registry()
         await ctx.send("Updated.")
+
+    @commands.check(owner)
+    @commands.command(brief="get a file mapping IDs to the current player names [used for aesthetic generation].")
+    async def export_names(self,ctx):
+        names = {}
+
+        for player in self.bot.game.players:
+            names[player.id] = self.bot.get_name(player.id)
+
+        with open("names.json","w+") as f:
+            json.dump(names,f)
+
+        await ctx.send(file=discord.File(open("names.json","rb")))
+
 
 
 
