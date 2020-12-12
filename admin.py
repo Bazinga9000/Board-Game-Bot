@@ -471,13 +471,8 @@ class Admin(commands.Cog):
     @commands.check(owner)
     @commands.command(brief="get a file mapping IDs to the current player names [used for aesthetic generation].")
     async def export_names(self,ctx):
-        names = {}
-
-        for player in self.bot.game.players:
-            names[player.id] = self.bot.get_name(player.id)
-
         with open("names.json","w+") as f:
-            json.dump(names,f)
+            json.dump(self.bot.names,f)
 
         await ctx.send(file=discord.File(open("names.json","rb")))
 

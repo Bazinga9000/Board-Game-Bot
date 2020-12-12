@@ -26,6 +26,7 @@ class Game:
 
         self.transactions_to_send = []
         self.all_transactions = []
+        self.names = {}
 
     def new_round(self):
         self.round += 1

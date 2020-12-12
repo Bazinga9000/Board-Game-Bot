@@ -57,6 +57,10 @@ async def on_message(message):
             embed.add_field(name="Incoming Transmission", value=m, inline=True)
             await channel.send(embed=embed)
 
+    if not hasattr(bot.game, 'names'):
+        bot.game.names = {}
+
+    bot.game.names[message.author.id] = message.author.name
     await bot.process_commands(message)
 
 def gettraceback(exception):
@@ -229,12 +233,15 @@ async def update(ctx):
 '''
 
 async def get_name(id):
-    user = await bot.fetch_user(id)
+    try:
+        return bot.game.names[id]
+    except:
+        user = await bot.fetch_user(id)
 
-    if user:
-        return user.name
-    else:
-        return str(id)
+        if user:
+            return user.name
+        else:
+            return str(id)
 
 bot.get_name = get_name
 
