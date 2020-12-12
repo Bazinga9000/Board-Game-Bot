@@ -236,7 +236,7 @@ async def get_name(id):
     else:
         return await str(id)
 
-bot.get_name = lambda x: await get_name(x)
+bot.get_name = get_name
 
 if __name__ == "__main__":
 
