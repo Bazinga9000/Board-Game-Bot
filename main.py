@@ -232,16 +232,11 @@ async def update(ctx):
     await reload_libs(ctx)
 '''
 
-async def get_name(id):
+def get_name(id):
     try:
         return bot.game.names[id]
     except:
-        user = await bot.fetch_user(id)
-
-        if user:
-            return user.name
-        else:
-            return str(id)
+        return str(id)
 
 bot.get_name = get_name
 
