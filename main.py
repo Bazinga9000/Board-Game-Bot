@@ -229,12 +229,12 @@ async def update(ctx):
 '''
 
 async def get_name(id):
-    user = bot.fetch_user(id)
+    user = await bot.fetch_user(id)
 
     if user:
-        return await user.name
+        return user.name
     else:
-        return await str(id)
+        return str(id)
 
 bot.get_name = get_name
 
