@@ -229,7 +229,7 @@ async def update(ctx):
 '''
 
 def get_name(id):
-    user = bot.get_user(id)
+    user = bot.fetch_user(id)
 
     if user:
         return user.name
