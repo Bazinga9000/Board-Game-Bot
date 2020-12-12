@@ -228,15 +228,15 @@ async def update(ctx):
     await reload_libs(ctx)
 '''
 
-def get_name(id):
+async def get_name(id):
     user = bot.fetch_user(id)
 
     if user:
-        return user.name
+        return await user.name
     else:
-        return str(id)
+        return await str(id)
 
-bot.get_name = lambda x: get_name(x)
+bot.get_name = lambda x: await get_name(x)
 
 if __name__ == "__main__":
 
