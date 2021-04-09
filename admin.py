@@ -8,6 +8,16 @@ class Admin(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.guild = bot.get_guild(489554436327211008)
+
+    def get_name(self, id):
+        return self.guild.get_member(id).name
+
+    def get_results(self):
+        x = self.bot.game.export_results()
+        for response in x:
+            response["name"] = self.get_name(response["player"])
+        return x
 
     #everything regarding the help command was made by bottersnike and hanss
     def format_args(self, cmd):
@@ -304,14 +314,14 @@ class Admin(commands.Cog):
     @commands.check(owner)
     @commands.command(aliases=["export_results","export"],brief="Get the json file containing the most recently tabulated results.")
     async def extract_results(self, ctx):
-        x = self.bot.game.export_results()
+        x = self.get_results()
         channel = ctx.message.channel
         await ctx.send(file=discord.File(open("results/results.json","rb")))
 
     @commands.check(owner)
     @commands.command(aliases=["current_results"],brief="Tabulate the current results if voting were to end now.")
     async def tabulate_results(self, ctx):
-        x = self.bot.game.export_results()
+        x = self.get_results()
         message = '```\n'
         for response in x:
             message += "{} #{} - {}\n".format(response["player"],response["index"],response["response"])

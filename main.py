@@ -11,6 +11,9 @@ import game as g
 import pickle
 import player as p
 
+intents = discord.Intents.default()
+intents.members = True
+
 owner = lambda ctx: ctx.author.id == 137001076284063744
 tracebackt = True
 
@@ -23,7 +26,7 @@ startup_extensions = ["admin","p_commands"]
 
 prefix = "bg!"
 
-bot = commands.Bot(command_prefix=prefix, description=description)
+bot = commands.Bot(command_prefix=prefix, description=description, intents=intents)
 
 
 class bcolors:
