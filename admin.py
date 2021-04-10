@@ -315,6 +315,8 @@ class Admin(commands.Cog):
     async def extract_results(self, ctx):
         x = self.get_results()
         channel = ctx.message.channel
+        with open("results/results.json","w") as f:
+            json.dump(x, f)
         await ctx.send(file=discord.File(open("results/results.json","rb")))
 
     @commands.check(owner)
@@ -323,13 +325,19 @@ class Admin(commands.Cog):
         x = self.get_results()
         message = '```\n'
         for response in x:
-            message += "{} #{} - {}\n".format(response["player"],response["index"],response["response"])
+            message += "{} #{} - {}\n".format(response["name"],response["index"],response["response"])
             message += "μ = {}, σ = {}, s = {}\n".format(response["mean"],response["stdev"],response["skew"])
             message += "metas = {}\n".format(response["metas"])
             message += "Score - {} | Movement - {}\n\n".format(response["score"],response["movement"])
 
         message += "```"
-        await ctx.send(message)
+
+        if (len(message) < 1500):
+            await ctx.send(message)
+        else:
+            with open("results/tabulated.txt","w+") as f:
+                f.write(message)
+            await ctx.send(file=discord.File(open("results/tabulated.txt", "rb")))
 
     @commands.check(owner)
     @commands.command(aliases=["boost_add"],brief="Add a boost to a player")
