@@ -8,10 +8,9 @@ class Admin(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.guild = bot.get_guild(489554436327211008)
 
     def get_name(self, id):
-        return self.guild.get_member(id).name
+        return self.bot.get_guild(489554436327211008).get_member(id).name
 
     def get_results(self):
         x = self.bot.game.export_results()
