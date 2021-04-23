@@ -339,6 +339,7 @@ class Admin(commands.Cog):
                 f.write(message)
             await ctx.send(file=discord.File(open("results/tabulated.txt", "rb")))
 
+    '''
     @commands.check(owner)
     @commands.command(aliases=["boost_add"],brief="Add a boost to a player")
     async def add_boost(self, ctx, player_id : str, boost : float, duration : int, boost_id : str):
@@ -363,6 +364,7 @@ class Admin(commands.Cog):
         new_length = len(player.score_boosts)
 
         await ctx.send("Removed all boosts with id `{}` ({} item(s) removed)".format(boost_id,old_length-new_length))
+    '''
 
     @commands.check(owner)
     @commands.command(brief="Give a player more or less responses [lasts indefinitely!]")
@@ -375,6 +377,7 @@ class Admin(commands.Cog):
         player.update_max_responses(amount)
         return await ctx.send("Set {}'s max responses to {}.".format(self.bot.get_name(player.id),amount))
 
+    '''
     @commands.check(owner)
     @commands.command(aliases=["item_give"],brief="Give a player an item")
     async def give_item(self, ctx, player_id : str, item_id : str):
@@ -493,7 +496,7 @@ class Admin(commands.Cog):
 
         await ctx.send(file=discord.File(open("names.json","rb")))
 
-
+    '''
 
 
 def setup(bot):

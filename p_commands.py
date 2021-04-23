@@ -45,7 +45,7 @@ class PlayerCommands(commands.Cog):
         if word_count > 10: message += "**Your response is more than 10 words long. This is not recommended at all and the voters will almost surely kill you.**\n"
         if word_count < 10: message += "*Your response is fewer than 10 words long. While this is not explicitly forbidden, it is not recommended. Continue at your own risk.*\n"
 
-        message += "To edit your response, use the command `b9!response {}` followed by your edit.\n".format(index)
+        message += "To edit your response, use the command `bg!response {}` followed by your edit.\n".format(index)
         message += "Your responding status is:\n"
         for i in range(player.maximum_responses):
             if player.current_responses[i] is not None:
@@ -126,7 +126,7 @@ class PlayerCommands(commands.Cog):
             self.bot.game.dump_game()
 
             await ctx.send(message)
-
+    '''
     @commands.command(aliases=["boosts","boost"],brief="Get your current boosts")
     @commands.dm_only()
     async def get_boosts(self, ctx):
@@ -210,7 +210,7 @@ class PlayerCommands(commands.Cog):
         self.bot.game.transactions_to_send.append(message)
 
         return await channel.send(embed=embed)
-
+    '''
 
 def setup(bot):
     bot.add_cog(PlayerCommands(bot))
